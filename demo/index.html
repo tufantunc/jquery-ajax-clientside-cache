@@ -24,26 +24,22 @@
           beforeSend: function() {
             $("#ajaxstatus").append(" - Ajax start\n");
           },
-          success: function(data, status, jqxhr) {
-            console.log(data);
-            console.log(status);
-            console.log(jqxhr);
+          success: function(data, textStatus, jqXHR) {
+            console.log("its success!");
+            console.log(jqXHR);
             $("#ajaxstatus").append(" - Ajax success\n");
           },
-          error: function (jqxhr, status, error) {
-	          if (jqxhr.statusText === "abort") {
-		          //jqxhr["responseText"] = JSON.stringify(cacheData);
-		          //jqxhr["responseJSON"] = cacheData;
-		          //jqxhr["readyState"] = 4;
-		          //jqxhr["status"] = 200;
-	          	$.event.trigger("ajaxSuccess", jqxhr);
-		          return;
-	          }
-	          
+          error: function (jqXHR, textStatus, errorThrown) {
+            if(textStatus === "abort") {
+              console.log("its cached!");
+              jqXHR.statusText = "OK";
+              jqXHR.status = 200;
+              jqXHR.readyState = 4;
+              jqXHR.settings.success(jqXHR.responseJSON, "OK", jqXHR);
+              return;
+            }
             console.log("its error!");
-            console.log(error);
-            console.log(status);
-            console.log(jqxhr);
+            console.log(jqXHR);
           }
         });
       })
