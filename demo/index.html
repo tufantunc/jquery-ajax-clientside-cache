@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>jQuery Ajax Client Side Cache Demo</title>
+  <!-- stylesheet is demo only -->
+  <link href="style.css" rel="stylesheet" />
+  <script type="text/javascript" src="../lib/jquery.3.1.0.min.js"></script>
+  <script type="text/javascript" src="jquery.ajaxclientsidecache.js"></script>
+  <script type="text/javascript">
+    // document ready shortcut
+    $(function() {
+      $("#ajaxRequestButton").on("click", function(e) {
+        e.preventDefault();
+        $.ajax({
+          url: "http://www.omdbapi.com/",
+          type: "GET",
+          dataType: 'json',
+          data: {
+            t: "Fight Club",
+            r: "json",
+            plot: "short"
+          },
+          clientSideCache: true, //for activate cache plugin
+          beforeSend: function() {
+            $("#ajaxstatus").append(" - Ajax start\n");
+          },
+          success: function(data, status, jqxhr) {
+            console.log(data);
+            console.log(status);
+            console.log(jqxhr);
+            $("#ajaxstatus").append(" - Ajax success\n");
+          },
+          error: function(jqxhr, status, error) {
+            console.log("its error!");
+            console.log(error);
+            console.log(status);
+            console.log(jqxhr);
+          }
+        });
+      })
+    });
+  </script>
+</head>
+<body>
+  <div class="centerbtn">
+    <button id="ajaxRequestButton">
+      Run Ajax Request
+    </button>
+  </div>
+  <pre id="ajaxstatus">
+  </pre>
+</body>
+</html>

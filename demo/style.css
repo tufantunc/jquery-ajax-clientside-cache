@@ -1,0 +1,10 @@
+.centerbtn {
+  margin: 10px auto;
+  display: block;
+  width: 150px;
+}
+.centerbtn button {
+  width:150px;
+  height: 50px;
+  cursor: pointer;
+}
