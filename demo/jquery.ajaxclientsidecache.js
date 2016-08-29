@@ -1,5 +1,5 @@
 var clientSideAjaxCache = {};
-(function(context) {
+(function (context) {
 	function _createCacheKey(url, postData) {
 		if (!!url) {
 			var result = url.toString();
@@ -15,7 +15,7 @@ var clientSideAjaxCache = {};
 		}
 	};
 
-	context.setCache = function(url, postData, responseData) {
+	context.setCache = function (url, postData, responseData) {
 		if (!!url) {
 			var cacheKey = _createCacheKey(url, postData);
 			sessionStorage.setItem(cacheKey, JSON.stringify(responseData));
@@ -35,7 +35,7 @@ var clientSideAjaxCache = {};
 		}
 	}
 
-	context.cleanCache = function(url, postData) {
+	context.cleanCache = function (url, postData) {
 		if (!!url) {
 			var cacheKey = _createCacheKey(url, postData);
 			sessionStorage.removeItem(cacheKey);
@@ -50,29 +50,29 @@ $(document).ajaxSend(function (event, jqxhr, settings) {
 		var requestUrl = settings.url;
 		var cacheData = clientSideAjaxCache.getCache(requestUrl, requestData);
 
-    jqxhr["settings"] = settings;
+		jqxhr["settings"] = settings;
 		if (cacheData !== null) {
 			jqxhr.abort();
-			jqxhr["responseText"] = JSON.stringify(cacheData);
-			jqxhr["responseJSON"] = cacheData;
-			jqxhr["readyState"] = 4;
-			jqxhr["status"] = 200;
-			jqxhr["statusText"] = "OK";
-      $.event.trigger("ajaxSuccess", cacheData, "success", jqxhr);
+			//jqxhr["responseText"] = JSON.stringify(cacheData);
+			//jqxhr["responseJSON"] = cacheData;
+			//jqxhr["readyState"] = 4;
+			//jqxhr["status"] = 200;
+			//$.event.trigger("ajaxSuccess");
 		}
 	}
 });
 
-$(document).ajaxSuccess(function (event, cacheData, status, jqxhr) {
-	if (typeof jqxhr.settings !== "undefined") {
-		var settings = jqxhr.settings;
-		if (typeof settings.clientSideCache !== "undefined" && settings.clientSideCache === true) {
-			var requestData = settings.data;
-			var requestUrl = settings.url;
-			var cacheData = clientSideAjaxCache.getCache(requestUrl, requestData);
-			if (cacheData === null) {
-				clientSideAjaxCache.setCache(requestUrl, requestData, jqxhr.responseJSON);
+$(document).ajaxSuccess(function (event, status, cacheInfo, cacheData) {
+	if (typeof cacheInfo.clientSideCache !== "undefined") {
+		console.log(cacheInfo);
+		if (typeof cacheInfo.clientSideCache !== "undefined" && cacheInfo.clientSideCache === true) {
+			var requestData = cacheInfo.data;
+			var requestUrl = cacheInfo.url;
+			var cacheInfo = clientSideAjaxCache.getCache(requestUrl, requestData);
+			if (cacheInfo === null) {
+				clientSideAjaxCache.setCache(requestUrl, requestData, cacheData);
 			}
 		}
 	}
+
 });

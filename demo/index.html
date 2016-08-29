@@ -30,7 +30,16 @@
             console.log(jqxhr);
             $("#ajaxstatus").append(" - Ajax success\n");
           },
-          error: function(jqxhr, status, error) {
+          error: function (jqxhr, status, error) {
+	          if (jqxhr.statusText === "abort") {
+		          //jqxhr["responseText"] = JSON.stringify(cacheData);
+		          //jqxhr["responseJSON"] = cacheData;
+		          //jqxhr["readyState"] = 4;
+		          //jqxhr["status"] = 200;
+	          	$.event.trigger("ajaxSuccess", jqxhr);
+		          return;
+	          }
+	          
             console.log("its error!");
             console.log(error);
             console.log(status);
