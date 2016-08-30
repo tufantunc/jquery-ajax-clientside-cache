@@ -1,8 +1,19 @@
-var clientSideAjaxCache = {};
-(function (context) {
+(function($) {
+	var originalAjaxFunction = $.ajax;
+
+	var defaults = {
+		type: "sessionStorage", //or localStorage
+		expires: null, //optional, must be datetime object, not neccessery if type is sessionStorage
+		key: null //optional, must be string
+	};
+
+	var _type, _expires, _key;
+
+	var _prefix = "csc_";
+
 	function _createCacheKey(url, postData) {
-		if (!!url) {
-			var result = url.toString();
+		if (typeof url === "string") {
+			var result = _prefix + url;
 			if (!!postData) {
 				$.each(Object.keys(postData), function (index, item) {
 					result += "_" + item + "-" + postData[item];
@@ -15,57 +26,129 @@ var clientSideAjaxCache = {};
 		}
 	};
 
-	context.setCache = function (url, postData, responseData) {
-		if (!!url) {
-			var cacheKey = _createCacheKey(url, postData);
-			sessionStorage.setItem(cacheKey, JSON.stringify(responseData));
-			return true;
-		} else {
-			return false;
-		}
+	function _setCache(responseData) {
+		sessionStorage.setItem(_key, JSON.stringify(responseData));
+		return true;
 	};
 
-	context.getCache = function (url, postData) {
-		if (!!url) {
-			var cacheKey = _createCacheKey(url, postData);
-			var cacheData = JSON.parse(sessionStorage.getItem(cacheKey));
-			return cacheData;
-		} else {
-			return false;
-		}
+	function _getCache() {
+		var cacheData = JSON.parse(sessionStorage.getItem(_key));
+		return cacheData;
 	}
 
-	context.cleanCache = function (url, postData) {
+	function _removeCachefunction (url, postData) {
 		if (!!url) {
 			var cacheKey = _createCacheKey(url, postData);
 			sessionStorage.removeItem(cacheKey);
 		}
 	}
 
-})(clientSideAjaxCache);
+	$.ajax = function(settings) {
+		console.log(settings);
+		console.log("ajax called");
+		//if clientSideCache defined, do the things
+		if(typeof settings.clientSideCache === "object") {
+			console.log("cache func start");
+			//set type *must be string
+			if(typeof settings.clientSideCache.type === "string") {
+				_type = settings.clientSideCache.type === "localStorage" ? "localStorage" : "sessionStorage";
 
-$(document).ajaxSend(function (event, jqxhr, settings) {
-	if (typeof settings.clientSideCache !== "undefined" && settings.clientSideCache === true) {
-		var cacheData = clientSideAjaxCache.getCache(settings.url, settings.data);
-		jqxhr["settings"] = settings;
-		if(!!cacheData) {
-			jqxhr["responseJSON"] = cacheData;
-			jqxhr["responseText"] = JSON.stringify(cacheData);
-			jqxhr.abort();
-		}
-	}
-});
+				//if type is localStorage, control the expire date
+				if(settings.clientSideCache.type === "localStorage") {
+					//set expires *must be date object
+					if(typeof settings.clientSideCache.expires === "object") {
+						expires = settings.clientSideCache.expires;
+					} else {
+						expires = defaults.expires; //set default
+					}
+					//end of set expires
+				}
+				//end of if type is localStorage, control the expire date
+			} else {
+				_type = "sessionStorage";
+			};
+			//end of set type
 
-$(document).ajaxSuccess(function (event, jqxhr) {
-	if(typeof jqxhr.settings.clientSideCache !== "undefined" && jqxhr.settings.clientSideCache === true) {
-		var requestData = jqxhr.settings.data;
-		var requestUrl = jqxhr.settings.url;
-		var cacheData = jqxhr.responseJSON;
-			var cacheInfo = clientSideAjaxCache.getCache(requestUrl, requestData);
-			if (cacheInfo === null) {
-				var cacheData = jqxhr.responseJSON;
-				clientSideAjaxCache.setCache(requestUrl, requestData, cacheData);
+			//set key
+			if(typeof settings.clientSideCache.key === "string") {
+				_key = _prefix + settings.clientSideCache.key; //add prefix to user defined key
+			} else {
+				_key = _createCacheKey(settings.url, settings.data);
 			}
-		}
+			//end of set key
 
-});
+			//if ajax has clientSideCache data, override beforeSend and error functions, else make ajax request and set reponse to cache data
+			var cacheData = _getCache();
+			console.log("cacheData:");
+			console.log(cacheData);
+			if(!!cacheData) {
+				//control ajax error
+				//not needed
+				// var _originalError;
+				// if(typeof settings.error === "function") {
+				// 	_originalError = settings.error;
+				// }
+				// settings.error = function (jqXHR, textStatus, errorThrown) {
+				// 	console.log("its error");
+				// 	if(textStatus === "abort") {
+				// 		console.log("aborted because cache");
+				// 		jqXHR.statusText = "OK";
+				// 		jqXHR.status = 200;
+				// 		jqXHR.readyState = 4;
+				// 		jqXHR.settings.success(cacheData, "OK", jqXHR);
+				// 		return;
+				// 	}
+				//
+				// 	_originalError(jqXHR, textStatus, errorThrown);
+				// }
+				//end of control ajax error
+
+				//control ajax cache on beforeSend
+				var _originalBeforeSend;
+				if(typeof settings.beforeSend === "function") {
+					_originalBeforeSend = settings.beforeSend;
+				}
+
+				settings.beforeSend = function(jqXHR, settings) {
+					_originalBeforeSend(jqXHR, settings);
+					jqXHR["settings"] = settings;
+					jqXHR["responseJSON"] = cacheData;
+					jqXHR["responseText"] = JSON.stringify(cacheData);
+					settings.success(cacheData, "OK", jqXHR);
+					console.log("jqXHR aborted");
+					jqXHR.abort();
+				}
+				//end of control ajax cache on beforeSend
+
+			} else {
+				var _originalSuccess;
+				if(typeof settings.success === "function") {
+					_originalSuccess = settings.success;
+				}
+				settings.success = function (data, testStatus, jqxhr) {
+					_setCache(data);
+					_originalSuccess(data, testStatus, jqxhr);
+				}
+			}
+
+		}
+		//end of if clientSideCache defined, do the things
+
+		//do jquery ajax things
+		var result = originalAjaxFunction(settings);
+		//end of do jquery ajax things
+	}
+
+	//this function is clean all sessionStorage or localStorage decided with options parameter
+	$.cleanAjaxClientSideCache = function(options) {
+		console.log("clean cache taken");
+		return true;
+	};
+
+	//this function can get cache from sessionStorage or localStorage with options parameter
+	$.getAjaxClientSideCache = function(options) {
+		console.log("get cache taken");
+		return true;
+	};
+
+}(jQuery));

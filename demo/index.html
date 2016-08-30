@@ -4,8 +4,9 @@
   <title>jQuery Ajax Client Side Cache Demo</title>
   <!-- stylesheet is demo only -->
   <link href="style.css" rel="stylesheet" />
-  <script type="text/javascript" src="../lib/jquery.3.1.0.min.js"></script>
+  <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
   <script type="text/javascript" src="jquery.ajaxclientsidecache.js"></script>
+  <!-- <script type="text/javascript" src="script.js"></script> -->
   <script type="text/javascript">
     // document ready shortcut
     $(function() {
@@ -20,26 +21,18 @@
             r: "json",
             plot: "short"
           },
-          clientSideCache: true, //for activate cache plugin
+          clientSideCache: {
+            type: "sessionStorage"
+          }, //for activate cache plugin
           beforeSend: function() {
             $("#ajaxstatus").append(" - Ajax start\n");
           },
           success: function(data, textStatus, jqXHR) {
-            console.log("its success!");
-            console.log(jqXHR);
             $("#ajaxstatus").append(" - Ajax success\n");
           },
           error: function (jqXHR, textStatus, errorThrown) {
-            if(textStatus === "abort") {
-              console.log("its cached!");
-              jqXHR.statusText = "OK";
-              jqXHR.status = 200;
-              jqXHR.readyState = 4;
-              jqXHR.settings.success(jqXHR.responseJSON, "OK", jqXHR);
-              return;
-            }
+            $("#ajaxstatus").append(" - Ajax error!\n");
             console.log("its error!");
-            console.log(jqXHR);
           }
         });
       })
