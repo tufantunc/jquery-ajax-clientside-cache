@@ -57,9 +57,9 @@
 				if(settings.clientSideCache.type === "localStorage") {
 					//set expires *must be date object
 					if(typeof settings.clientSideCache.expires === "object") {
-						expires = settings.clientSideCache.expires;
+						_expires = settings.clientSideCache.expires;
 					} else {
-						expires = defaults.expires; //set default
+						_expires = defaults.expires; //set default
 					}
 					//end of set expires
 				}
