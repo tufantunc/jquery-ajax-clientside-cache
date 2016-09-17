@@ -2,15 +2,25 @@
 <html>
 <head>
   <title>jQuery Ajax Client Side Cache Demo</title>
-  <!-- stylesheet is demo only -->
-  <link href="style.css" rel="stylesheet" />
-  <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
-  <script type="text/javascript" src="jquery.ajaxclientsidecache.js"></script>
+  <!-- style is for demo only -->
+  <style>
+    .centerbtn {
+      margin: 10px auto;
+      display: block;
+      width: 150px;
+    }
+    .centerbtn button {
+      width:150px;
+      height: 50px;
+      cursor: pointer;
+    }
+  </style>
+  <script type="text/javascript" src="../libs/jquery.min.js"></script>
+  <script type="text/javascript" src="../dist/jquery.ajaxclientsidecache.min.js"></script>
   <!-- <script type="text/javascript" src="script.js"></script> -->
   <script type="text/javascript">
-    // document ready shortcut
-    $(function() {
-      $("#ajaxRequestButton").on("click", function(e) {
+    $(function() {// document ready shortcut
+      $("#ajaxRequestButton").on("click", function(e) {//onclick function for demo button
         e.preventDefault();
         $.ajax({
           url: "http://www.omdbapi.com/",

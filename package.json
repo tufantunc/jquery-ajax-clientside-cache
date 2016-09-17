@@ -1,0 +1,39 @@
+{
+  "name": "jquery-ajax-csc-plugin-grunt-file",
+  "version": "1.0.0",
+  "description": "jQuery Ajax Client-Side Cache Plugin npm file",
+  "author": "Tufan Tunc",
+  "license": "MIT",
+  "scripts": {
+    "dev": "lite-server"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "lite-server": "^2.2.2"
+  },
+  "main": "jquery.ajaxclientsidecache.js",
+  "dependencies": {
+    "lite-server": "^2.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tufantunc/jquery-ajax-clientside-cache.git"
+  },
+  "keywords": [
+    "jquery",
+    "ajax",
+    "cache",
+    "client",
+    "side",
+    "plugin"
+  ],
+  "bugs": {
+    "url": "https://github.com/tufantunc/jquery-ajax-clientside-cache/issues"
+  },
+  "homepage": "https://github.com/tufantunc/jquery-ajax-clientside-cache#readme"
+}

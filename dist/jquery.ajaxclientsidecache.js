@@ -1,3 +1,6 @@
+/*! Jquery Ajax ClientSide Cache - v0.1.0 - 2016-09-17
+* https://github.com/tufantunc/jquery-ajax-clientside-cache#readme
+* Copyright (c) 2016 Tufan Tunc, Furkan Cuneyt Bekar; Licensed MIT */
 (function ($) {
 	var originalAjaxFunction = $.ajax;
 
@@ -29,7 +32,7 @@
 		} else {
 			return null;
 		}
-	};
+	}
 
 	function _setCache(responseData) {
 		if (_type === $.ajaxClientSideCacheTypeEnum.sS) {
@@ -38,21 +41,21 @@
 			localStorage.setItem(_key, JSON.stringify(responseData));
 		}
 		return true;
-	};
+	}
 
 	function _getCache() {
-		return _type === $.ajaxClientSideCacheTypeEnum.sS
-			? JSON.parse(sessionStorage.getItem(_key))
-			: JSON.parse(localStorage.getItem(_key));
+		return _type === $.ajaxClientSideCacheTypeEnum.sS	? JSON.parse(sessionStorage.getItem(_key)) : JSON.parse(localStorage.getItem(_key));
 	}
 
 	function _removeCache(url, postData) {
 		var cacheKey;
 		if (!!url) {
 			cacheKey = _createCacheKey(url, postData);
-			_type === $.ajaxClientSideCacheTypeEnum.sS
-				? sessionStorage.removeItem(cacheKey)
-				: localStorage.removeItem(cacheKey);
+			if(_type === $.ajaxClientSideCacheTypeEnum.sS) {
+				sessionStorage.removeItem(cacheKey);
+			} else {
+				localStorage.removeItem(cacheKey);
+			}
 		}
 	}
 
@@ -79,7 +82,7 @@
 				//end of if type is localStorage, control the expire date
 			} else {
 				_type = $.ajaxClientSideCacheTypeEnum.sS;
-			};
+			}
 			//end of set type
 
 			//set key
@@ -103,13 +106,13 @@
 
 				settings.beforeSend = function (jqXHR, settings) {
 					_originalBeforeSend(jqXHR, settings);
-					jqXHR["settings"] = settings;
-					jqXHR["responseJSON"] = cacheData;
-					jqXHR["responseText"] = JSON.stringify(cacheData);
+					jqXHR.settings = settings;
+					jqXHR.responseJSON = cacheData;
+					jqXHR.responseText = JSON.stringify(cacheData);
 					settings.success(cacheData, "OK", jqXHR);
 					console.log("jqXHR aborted");
 					jqXHR.abort();
-				}
+				};
 				//end of control ajax cache on beforeSend
 
 			} else {
@@ -120,7 +123,7 @@
 				settings.success = function (data, testStatus, jqxhr) {
 					_setCache(data);
 					_originalSuccess(data, testStatus, jqxhr);
-				}
+				};
 			}
 
 		}
@@ -129,19 +132,14 @@
 		//do jquery ajax things
 		var result = originalAjaxFunction(settings);
 		//end of do jquery ajax things
-	}
+	};
 
 	//this function is clean all sessionStorage or localStorage decided with options parameter
 	$.cleanAjaxClientSideCache = function (options) {
 		console.log("clean cache taken");
-		$.each(options.type === $.ajaxClientSideCacheTypeEnum.sS
-			? sessionStorage
-			: localStorage,
-			function (key) {
+		$.each(options.type === $.ajaxClientSideCacheTypeEnum.sS ? sessionStorage	: localStorage,	function (key) {
 				if (key.substr(0, _prefix.length) === _prefix) {
-					(options.type === $.ajaxClientSideCacheTypeEnum.sS
-						? sessionStorage
-						: localStorage).removeItem(key);
+					(options.type === $.ajaxClientSideCacheTypeEnum.sS ? sessionStorage	: localStorage).removeItem(key);
 				}
 			});
 		return true;
@@ -153,8 +151,6 @@
 		if (!options.key) {
 			return null;
 		}
-		return JSON.parse((options.type === $.ajaxClientSideCacheTypeEnum.sS
-			? sessionStorage
-			: localStorage).getItem(options.key));
+		return JSON.parse((options.type === $.ajaxClientSideCacheTypeEnum.sS ? sessionStorage	: localStorage).getItem(options.key));
 	};
 }(jQuery));
