@@ -1,0 +1,29 @@
+{
+  "name": "jquery-ajax-clientside-cache",
+  "authors": [
+    "Tufan Tunc <tufan.tunc.91@gmail.com>",
+    "Cuneyt Bekar <f.cuneytbekar@hotmail.com>"
+  ],
+  "description": "jQuery Ajax ClientSide Cache plugin provides caching for ajax request using browser's localstorage/sessionstorage.",
+  "main": "jquery.ajaxclientsidecache.js",
+  "keywords": [
+    "jquery",
+    "ajax",
+    "cache",
+    "client",
+    "side",
+    "plugin"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "moduleType": [
+    "globals"
+  ]
+}
