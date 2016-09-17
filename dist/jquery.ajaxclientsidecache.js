@@ -60,11 +60,8 @@
 	}
 
 	$.ajax = function (settings) {
-		console.log(settings);
-		console.log("ajax called");
 		//if clientSideCache defined, do the things
 		if (typeof settings.clientSideCache === "object") {
-			console.log("cache func start");
 			//set type *must be string
 			if (typeof settings.clientSideCache.type === "string") {
 				_type = settings.clientSideCache.type === "localStorage" ? "localStorage" : "sessionStorage";
@@ -95,8 +92,6 @@
 
 			//if ajax has clientSideCache data, override beforeSend and error functions, else make ajax request and set reponse to cache data
 			var cacheData = _getCache();
-			console.log("cacheData:");
-			console.log(cacheData);
 			if (!!cacheData) {
 				//control ajax cache on beforeSend
 				var _originalBeforeSend;
@@ -107,10 +102,9 @@
 				settings.beforeSend = function (jqXHR, settings) {
 					_originalBeforeSend(jqXHR, settings);
 					jqXHR.settings = settings;
-					jqXHR.responseJSON = cacheData;
+					jqXHR.responseJSON = cacheData; 
 					jqXHR.responseText = JSON.stringify(cacheData);
 					settings.success(cacheData, "OK", jqXHR);
-					console.log("jqXHR aborted");
 					jqXHR.abort();
 				};
 				//end of control ajax cache on beforeSend
@@ -136,7 +130,6 @@
 
 	//this function is clean all sessionStorage or localStorage decided with options parameter
 	$.cleanAjaxClientSideCache = function (options) {
-		console.log("clean cache taken");
 		$.each(options.type === $.ajaxClientSideCacheTypeEnum.sS ? sessionStorage	: localStorage,	function (key) {
 				if (key.substr(0, _prefix.length) === _prefix) {
 					(options.type === $.ajaxClientSideCacheTypeEnum.sS ? sessionStorage	: localStorage).removeItem(key);
@@ -147,7 +140,6 @@
 
 	//this function can get cache from sessionStorage or localStorage with options parameter
 	$.getAjaxClientSideCache = function (options) {
-		console.log("get cache taken");
 		if (!options.key) {
 			return null;
 		}
